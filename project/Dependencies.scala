@@ -2,6 +2,7 @@ import sbt._
 
 object Version {
   val akka      = "2.3.5"
+  val akkaHttp  = "0.5"
   val logback   = "1.1.2"
   val scala     = "2.11.2"
   val scalaTest = "2.2.1"
@@ -9,12 +10,13 @@ object Version {
 }
 
 object Library {
-  val akkaActor      = "com.typesafe.akka" %% "akka-actor"      % Version.akka
-  val akkaSlf4j      = "com.typesafe.akka" %% "akka-slf4j"      % Version.akka
-  val akkaTestkit    = "com.typesafe.akka" %% "akka-testkit"    % Version.akka
-  val logbackClassic = "ch.qos.logback"    %  "logback-classic" % Version.logback
-  val scalaTest      = "org.scalatest"     %% "scalatest"       % Version.scalaTest
-  val scalactic      = "org.scalactic"     %% "scalactic"       % Version.scalactic
+  val akkaActor      = "com.typesafe.akka" %% "akka-actor"             % Version.akka
+  val akkaHttp       = "com.typesafe.akka" %% "akka-http-experimental" % Version.akkaHttp
+  val akkaSlf4j      = "com.typesafe.akka" %% "akka-slf4j"             % Version.akka
+  val akkaTestkit    = "com.typesafe.akka" %% "akka-testkit"           % Version.akka
+  val logbackClassic = "ch.qos.logback"    %  "logback-classic"        % Version.logback
+  val scalaTest      = "org.scalatest"     %% "scalatest"              % Version.scalaTest
+  val scalactic      = "org.scalactic"     %% "scalactic"              % Version.scalactic
 }
 
 object Dependencies {
@@ -22,6 +24,6 @@ object Dependencies {
   import Library._
 
   val echoHttpd = List(
-    scalaTest % "test"
+    akkaHttp
   )
 }
