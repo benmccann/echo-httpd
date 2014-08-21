@@ -1,6 +1,18 @@
 # echo-httpd #
 
-Welcome to echo-httpd!
+```
+echo-httpd$ sbt stage
+...
+[success] Total time: 0 s, completed Aug 21, 2014 9:18:23 PM
+echo-httpd$ target/universal/stage/bin/echo-httpd
+
+(next terminal)
+
+echo-httpd$ curl 192.168.178.20:8080/hello
+/hello
+echo-httpd$ curl 192.168.178.20:8080/shutdown
+Shutting down ...
+```
 
 ## Contribution policy ##
 
