@@ -1,3 +1,4 @@
+import com.typesafe.sbt.SbtNativePackager._
 import com.typesafe.sbt.SbtScalariform._
 import sbt._
 import sbt.Keys._
@@ -6,7 +7,8 @@ import scalariform.formatter.preferences._
 object Common {
 
   val settings =
-    scalariformSettings ++ List(
+    scalariformSettings ++
+    packageArchetype.java_application ++ List(
       // Core settings
       organization := "de.heikoseeberger",
       version := "0.1.0",
