@@ -8,7 +8,7 @@ object Common {
 
   val settings =
     scalariformSettings ++
-    packageArchetype.java_application ++ List(
+    packageArchetype.java_server ++ List(
       // Core settings
       organization := "de.heikoseeberger",
       version := "1.0.0",
@@ -28,6 +28,11 @@ object Common {
         .setPreference(AlignSingleLineCaseStatements, true)
         .setPreference(AlignSingleLineCaseStatements.MaxArrowIndent, 100)
         .setPreference(DoubleIndentClassDeclaration, true)
-        .setPreference(PreserveDanglingCloseParenthesis, true)
+        .setPreference(PreserveDanglingCloseParenthesis, true),
+      // Native packager settings
+      NativePackagerKeys.dockerRepository := Some("hseeberger"),
+      NativePackagerKeys.maintainer := "Heiko Seeberger <mail@heikoseeberger.de>",
+      NativePackagerKeys.dockerBaseImage := "hseeberger/java",
+      NativePackagerKeys.dockerExposedPorts in Docker := List(8080)
     )
 }
