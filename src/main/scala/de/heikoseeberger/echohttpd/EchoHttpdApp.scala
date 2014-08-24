@@ -36,12 +36,18 @@ class EchoHttpd(hostname: String, port: Int)(implicit system: ActorSystem, bindT
 
   private val handleRequest: HttpRequest => HttpResponse = {
     case HttpRequest(HttpMethods.GET, Uri.Path("/shutdown"), _, _, _) => shutdown()
+    case HttpRequest(HttpMethods.GET, Uri.Path("/status"), _, _, _)   => status()
     case HttpRequest(HttpMethods.GET, uri, _, _, _)                   => echo(uri)
   }
 
   private def shutdown() = {
     system.scheduler.scheduleOnce(500 millis)(system.shutdown())
     HttpResponse(StatusCodes.OK, entity = "Shutting down ...")
+  }
+
+  private def status() = {
+    val cpus = Runtime.getRuntime.availableProcessors()
+    HttpResponse(StatusCodes.OK, entity = s"Number of CPUs: $cpus")
   }
 
   private def echo(uri: Uri) =

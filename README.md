@@ -1,15 +1,16 @@
 # echo-httpd #
 
 ```
-echo-httpd$ sbt stage
+echo-httpd$ sbt run
 ...
-[success] Total time: 0 s, completed Aug 21, 2014 9:18:23 PM
-echo-httpd$ target/universal/stage/bin/echo-httpd
+[info] Running de.heikoseeberger.echohttpd.EchoHttpdApp
 
 (next terminal)
 
 echo-httpd$ curl 192.168.178.20:8080/hello
 /hello
+echo-httpd$ curl 192.168.178.20:8080/status
+Number of CPUs: 8
 echo-httpd$ curl 192.168.178.20:8080/shutdown
 Shutting down ...
 ```
