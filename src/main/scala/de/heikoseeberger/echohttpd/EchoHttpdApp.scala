@@ -19,7 +19,7 @@ import scala.util.Try
 object EchoHttpdApp {
 
   def main(args: Array[String]): Unit = {
-    val hostname = System.getProperty("hostname", InetAddress.getLocalHost.getHostName)
+    val hostname = System.getProperty("hostname", "0.0.0.0")
     val port = Try(System.getProperty("port").toInt) getOrElse 8080
     val bindTimeout = (Try(System.getProperty("bind-timeout").toInt) getOrElse 1000).millis
     val system = ActorSystem()
