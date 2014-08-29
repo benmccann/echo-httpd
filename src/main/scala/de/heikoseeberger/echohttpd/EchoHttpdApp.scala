@@ -32,7 +32,7 @@ class EchoHttpd(hostname: String, port: Int)(implicit system: ActorSystem, bindT
 
   import system.dispatcher
 
-  private val materializer = FlowMaterializer(MaterializerSettings())
+  private implicit val materializer = FlowMaterializer(MaterializerSettings())
 
   private val handleRequest: HttpRequest => HttpResponse = {
     case HttpRequest(HttpMethods.GET, Uri.Path("/shutdown"), _, _, _) => shutdown()
@@ -54,16 +54,9 @@ class EchoHttpd(hostname: String, port: Int)(implicit system: ActorSystem, bindT
     HttpResponse(StatusCodes.OK, entity = uri.path.toString())
 
   def run(): Unit = {
-    IO(Http) ? Http.Bind(hostname, port) foreach {
-      case Http.ServerBinding(_, connections) =>
-        Flow(connections)
-          .foreach {
-            case Http.IncomingConnection(_, requestPublisher, responseSubscriber) =>
-              Flow(requestPublisher)
-                .map(handleRequest)
-                .produceTo(materializer, responseSubscriber)
-          }
-          .consume(materializer)
-    }
+    for {
+      Http.ServerBinding(_, connections) <- IO(Http) ? Http.Bind(hostname, port)
+      Http.IncomingConnection(_, requestPublisher, responseSubscriber) <- Flow(connections)
+    } Flow(requestPublisher) map handleRequest produceTo responseSubscriber
   }
 }
