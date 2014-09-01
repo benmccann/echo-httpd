@@ -11,7 +11,7 @@ object Common {
     packageArchetype.java_server ++ List(
       // Core settings
       organization := "de.heikoseeberger",
-      version := "1.3.0",
+      version := "1.4.0",
       scalaVersion := Version.scala,
       crossScalaVersions := List(scalaVersion.value),
       scalacOptions ++= List(
