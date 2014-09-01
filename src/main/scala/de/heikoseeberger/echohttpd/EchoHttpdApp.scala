@@ -12,20 +12,27 @@ import akka.pattern.ask
 import akka.stream.scaladsl.Flow
 import akka.stream.{ FlowMaterializer, MaterializerSettings }
 import akka.util.Timeout
-import java.net.InetAddress
+import org.reactivestreams.Publisher
+import scala.collection.breakOut
 import scala.concurrent.duration.DurationInt
-import scala.util.Try
+import scala.util.{ Failure, Success, Try }
 
 object EchoHttpdApp {
 
+  private val opt = """(\S+)=(\S+)""".r
+
   def main(args: Array[String]): Unit = {
-    val hostname = System.getProperty("hostname", "0.0.0.0")
-    val port = Try(System.getProperty("port").toInt) getOrElse 8080
-    val bindTimeout = (Try(System.getProperty("bind-timeout").toInt) getOrElse 1000).millis
+    val opts = argsToOpts(args.toList)
+    val hostname = Try(opts("hostname")) getOrElse "127.0.0.1"
+    val port = Try(opts("port").toInt) getOrElse 8080
+
     val system = ActorSystem()
-    new EchoHttpd(hostname, port)(system, bindTimeout).run()
+    new EchoHttpd(hostname, port)(system, 500 millis).run()
     system.awaitTermination()
   }
+
+  private def argsToOpts(args: Seq[String]): Map[String, String] =
+    args.collect { case opt(key, value) => key -> value }(breakOut)
 }
 
 class EchoHttpd(hostname: String, port: Int)(implicit system: ActorSystem, bindTimeout: Timeout) {
@@ -54,9 +61,19 @@ class EchoHttpd(hostname: String, port: Int)(implicit system: ActorSystem, bindT
     HttpResponse(StatusCodes.OK, entity = uri.path.toString())
 
   def run(): Unit = {
-    for {
-      Http.ServerBinding(_, connections) <- IO(Http) ? Http.Bind(hostname, port)
-      Http.IncomingConnection(_, requestPublisher, responseSubscriber) <- Flow(connections)
-    } Flow(requestPublisher) map handleRequest produceTo responseSubscriber
+    def handleBindSuccess(connections: Publisher[Http.IncomingConnection]) = {
+      println(s"Listening on $hostname:$port ...")
+      Flow(connections) foreach {
+        case Http.IncomingConnection(_, requests, responses) => Flow(requests) map handleRequest produceTo responses
+      }
+    }
+    def handleBindFailure() = {
+      println(s"Could not bind to $hostname:$port!")
+      system.shutdown()
+    }
+    IO(Http) ? Http.Bind(hostname, port) onComplete {
+      case Success(Http.ServerBinding(_, connections)) => handleBindSuccess(connections)
+      case Failure(_)                                  => handleBindFailure()
+    }
   }
 }
