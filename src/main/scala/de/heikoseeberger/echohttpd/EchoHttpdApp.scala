@@ -12,6 +12,7 @@ import akka.pattern.ask
 import akka.stream.scaladsl.Flow
 import akka.stream.{ FlowMaterializer, MaterializerSettings }
 import akka.util.Timeout
+import java.net.InetAddress
 import org.reactivestreams.Publisher
 import scala.collection.breakOut
 import scala.concurrent.duration.DurationInt
@@ -23,7 +24,7 @@ object EchoHttpdApp {
 
   def main(args: Array[String]): Unit = {
     val opts = argsToOpts(args.toList)
-    val hostname = Try(opts("hostname")) getOrElse "127.0.0.1"
+    val hostname = Try(opts("hostname")) getOrElse InetAddress.getLocalHost.getHostAddress
     val port = Try(opts("port").toInt) getOrElse 8080
 
     val system = ActorSystem()
