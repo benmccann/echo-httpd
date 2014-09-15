@@ -1,12 +1,12 @@
 import sbt._
 
 object Version {
-  val akka      = "2.3.5"
-  val akkaHttp  = "0.6"
+  val akka      = "2.3.6"
+  val akkaHttp  = "0.7"
   val logback   = "1.1.2"
   val scala     = "2.11.2"
-  val scalaTest = "2.2.1"
-  val scalactic = "2.2.1"
+  val scalaTest = "2.2.2"
+  val scalactic = "2.2.2"
 }
 
 object Library {

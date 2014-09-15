@@ -40,12 +40,29 @@ class EchoHttpd(hostname: String, port: Int)(implicit system: ActorSystem, bindT
 
   import system.dispatcher
 
-  private implicit val materializer = FlowMaterializer(MaterializerSettings())
+  private implicit val materializer = FlowMaterializer()
 
   private val handleRequest: HttpRequest => HttpResponse = {
     case HttpRequest(HttpMethods.GET, Uri.Path("/shutdown"), _, _, _) => shutdown()
     case HttpRequest(HttpMethods.GET, Uri.Path("/status"), _, _, _)   => status()
     case HttpRequest(HttpMethods.GET, uri, _, _, _)                   => echo(uri)
+  }
+
+  def run(): Unit = {
+    def handleBindSuccess(connections: Publisher[Http.IncomingConnection]) = {
+      println(s"Listening on $hostname:$port ...")
+      Flow(connections) foreach {
+        case Http.IncomingConnection(_, requests, responses) => (Flow(requests) map handleRequest).produceTo(responses)
+      }
+    }
+    def handleBindFailure() = {
+      println(s"Could not bind to $hostname:$port!")
+      system.shutdown()
+    }
+    (IO(Http) ? Http.Bind(hostname, port)).mapTo[Http.ServerBinding] onComplete {
+      case Success(Http.ServerBinding(_, connections)) => handleBindSuccess(connections)
+      case Failure(_)                                  => handleBindFailure()
+    }
   }
 
   private def shutdown() = {
@@ -60,21 +77,4 @@ class EchoHttpd(hostname: String, port: Int)(implicit system: ActorSystem, bindT
 
   private def echo(uri: Uri) =
     HttpResponse(StatusCodes.OK, entity = uri.path.toString())
-
-  def run(): Unit = {
-    def handleBindSuccess(connections: Publisher[Http.IncomingConnection]) = {
-      println(s"Listening on $hostname:$port ...")
-      Flow(connections) foreach {
-        case Http.IncomingConnection(_, requests, responses) => Flow(requests) map handleRequest produceTo responses
-      }
-    }
-    def handleBindFailure() = {
-      println(s"Could not bind to $hostname:$port!")
-      system.shutdown()
-    }
-    IO(Http) ? Http.Bind(hostname, port) onComplete {
-      case Success(Http.ServerBinding(_, connections)) => handleBindSuccess(connections)
-      case Failure(_)                                  => handleBindFailure()
-    }
-  }
 }

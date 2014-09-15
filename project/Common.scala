@@ -25,10 +25,11 @@ object Common {
       unmanagedSourceDirectories in Test := List((scalaSource in Test).value),
       // Scalariform settings
       ScalariformKeys.preferences := ScalariformKeys.preferences.value
+        .setPreference(AlignArguments, true)
+        .setPreference(AlignParameters, true)
         .setPreference(AlignSingleLineCaseStatements, true)
         .setPreference(AlignSingleLineCaseStatements.MaxArrowIndent, 100)
-        .setPreference(DoubleIndentClassDeclaration, true)
-        .setPreference(PreserveDanglingCloseParenthesis, true),
+        .setPreference(DoubleIndentClassDeclaration, true),
       // Native packager settings
       NativePackagerKeys.dockerRepository := Some("hseeberger"),
       NativePackagerKeys.maintainer := "Heiko Seeberger <mail@heikoseeberger.de>",
