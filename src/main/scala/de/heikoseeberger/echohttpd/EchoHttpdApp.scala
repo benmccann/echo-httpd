@@ -9,8 +9,8 @@ import akka.http.Http
 import akka.http.model._
 import akka.io.IO
 import akka.pattern.ask
+import akka.stream.FlowMaterializer
 import akka.stream.scaladsl.Flow
-import akka.stream.{ FlowMaterializer, MaterializerSettings }
 import akka.util.Timeout
 import java.net.InetAddress
 import org.reactivestreams.Publisher
@@ -24,8 +24,8 @@ object EchoHttpdApp {
 
   def main(args: Array[String]): Unit = {
     val opts = argsToOpts(args.toList)
-    val hostname = Try(opts("hostname")) getOrElse InetAddress.getLocalHost.getHostAddress
-    val port = Try(opts("port").toInt) getOrElse 8080
+    val hostname = Try(opts("hostname")).getOrElse(InetAddress.getLocalHost.getHostAddress)
+    val port = Try(opts("port").toInt).getOrElse(8080)
 
     val system = ActorSystem()
     new EchoHttpd(hostname, port)(system, 500 millis).run()
@@ -51,17 +51,18 @@ class EchoHttpd(hostname: String, port: Int)(implicit system: ActorSystem, bindT
   def run(): Unit = {
     def handleBindSuccess(connections: Publisher[Http.IncomingConnection]) = {
       println(s"Listening on $hostname:$port ...")
-      Flow(connections) foreach {
-        case Http.IncomingConnection(_, requests, responses) => (Flow(requests) map handleRequest).produceTo(responses)
+      Flow(connections).foreach {
+        case Http.IncomingConnection(_, requests, responses) => Flow(requests).map(handleRequest).produceTo(responses)
       }
     }
     def handleBindFailure() = {
       println(s"Could not bind to $hostname:$port!")
       system.shutdown()
     }
-    (IO(Http) ? Http.Bind(hostname, port)).mapTo[Http.ServerBinding] onComplete {
+    val bindResponse = (IO(Http) ? Http.Bind(hostname, port)).mapTo[Http.ServerBinding]
+    bindResponse.onComplete {
       case Success(Http.ServerBinding(_, connections)) => handleBindSuccess(connections)
-      case Failure(_)                                  => handleBindFailure()
+      case _                                           => handleBindFailure()
     }
   }
 
