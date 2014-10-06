@@ -7,11 +7,9 @@ echo-httpd$ sbt run
 
 (next terminal)
 
-echo-httpd$ curl 192.168.178.20:8080/hello
+echo-httpd$ curl 192.168.178.20:9000/hello
 /hello
-echo-httpd$ curl 192.168.178.20:8080/status
-Number of CPUs: 8
-echo-httpd$ curl 192.168.178.20:8080/shutdown
+echo-httpd$ curl 192.168.178.20:9000/shutdown
 Shutting down ...
 ```
 

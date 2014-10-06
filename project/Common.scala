@@ -33,7 +33,6 @@ object Common {
       // Native packager settings
       NativePackagerKeys.dockerRepository := Some("hseeberger"),
       NativePackagerKeys.maintainer := "Heiko Seeberger <mail@heikoseeberger.de>",
-      NativePackagerKeys.dockerBaseImage := "dockerfile/java:oracle-java8",
-      NativePackagerKeys.dockerExposedPorts in Docker := List(8080)
+      NativePackagerKeys.dockerBaseImage := "dockerfile/java:oracle-java8"
     )
 }
