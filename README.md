@@ -1,6 +1,12 @@
 # echo-httpd #
 
-Welcome to echo-httpd!
+HTTP service based on akka-http for demo and testing purposes.
+Usually echoes requests, i.e. responses contain the path of the request's URL.
+
+There are the following special cases:
+
+- Path suffix is `who`: Response contains the interface and port the service is bound to 
+- Path suffix is `shutdown`: The service is shut down
 
 ## Contribution policy ##
 
