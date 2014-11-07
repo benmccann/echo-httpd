@@ -1,3 +1,4 @@
+import com.typesafe.sbt.SbtNativePackager.autoImport._
 import com.typesafe.sbt.SbtScalariform._
 import sbt._
 import sbt.Keys._
@@ -16,7 +17,7 @@ object Build extends AutoPlugin {
     List(
       // Core settings
       organization := "de.heikoseeberger",
-      version := "0.1.0",
+      version := "1.10.2",
       scalaVersion := Version.scala,
       crossScalaVersions := List(scalaVersion.value),
       scalacOptions ++= List(
@@ -34,6 +35,10 @@ object Build extends AutoPlugin {
         .setPreference(AlignParameters, true)
         .setPreference(AlignSingleLineCaseStatements, true)
         .setPreference(AlignSingleLineCaseStatements.MaxArrowIndent, 100)
-        .setPreference(DoubleIndentClassDeclaration, true)
+        .setPreference(DoubleIndentClassDeclaration, true),
+      // Native packager settings
+      NativePackagerKeys.dockerRepository := Some("hseeberger"),
+      NativePackagerKeys.maintainer := "Heiko Seeberger <mail@heikoseeberger.de>",
+      NativePackagerKeys.dockerBaseImage := "dockerfile/java:oracle-java8"
     )
 }
